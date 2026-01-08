@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.bobirental.common.model.BaseEntity;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,6 +25,7 @@ public class Tool extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tool_availability_status")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull
     private AvailabilityStatus toolAvailabilityStatus;
 
@@ -36,6 +39,7 @@ public class Tool extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tool_category")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull
     private ToolCategory toolCategory;
 
