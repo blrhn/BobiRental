@@ -107,4 +107,12 @@ public class RentalAgreement extends BaseEntity {
     public void setEmployee(Employee employee) {
         this.employee = employee;
     }
+
+    public String  getAgreementComment() {
+        return this.agreementComment;
+    }
+
+    public void setAgreementComment(String agreementComment) {
+        this.agreementComment = agreementComment;
+    }
 }

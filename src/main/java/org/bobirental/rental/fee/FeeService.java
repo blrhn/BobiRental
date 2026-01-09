@@ -1,4 +1,11 @@
 package org.bobirental.rental.fee;
 
-public class FeeService {
+import org.bobirental.common.impl.BaseService;
+import org.springframework.stereotype.Service;
+
+@Service
+public class FeeService extends BaseService<Fee> {
+    public FeeService(FeeRepository feeRepository) {
+        super(feeRepository);
+    }
 }

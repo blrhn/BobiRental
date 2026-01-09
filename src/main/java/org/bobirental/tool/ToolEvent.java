@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.bobirental.common.model.BaseEntity;
 import org.bobirental.employee.Employee;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 public class ToolEvent extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "event_category")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull
     private EventCategory eventCategory;
 
