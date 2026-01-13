@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface RentalAgreementRepository extends BaseRepository<RentalAgreement> {
@@ -26,4 +27,13 @@ public interface RentalAgreementRepository extends BaseRepository<RentalAgreemen
 
     @Query(value = "CALL close_agreement(:agreementId, :employeeId)", nativeQuery = true)
     void closeAgreement(@Param("agreementId") Integer agreementId, @Param("employeeId") Integer employeeId);
+
+    @Query(value = "SELECT r FROM RentalAgreement r WHERE r.client.id = :clientId")
+    List<RentalAgreement> findRentalAgreementByClientId(@Param("clientId") Integer clientId);
+
+    @Query(value = "SELECT r FROM RentalAgreement r WHERE r.tool.id = :toolId")
+    List<RentalAgreement> findRentalAgreementByToolId(@Param("toolId") Integer toolId);
+
+    @Query(value = "SELECT ra FROM RentalAgreement ra WHERE ra.isAgreementTerminated = false AND ra.agreementEstimatedTerminationDate < CURRENT_DATE")
+    List<RentalAgreement> findOverdueRentalAgreements();
 }

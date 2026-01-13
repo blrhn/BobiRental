@@ -3,6 +3,8 @@ package org.bobirental.rental.agreement;
 import org.bobirental.common.impl.BaseController;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/rental_agreements")
 public class RentalAgreementController extends BaseController<RentalAgreement> {
@@ -22,4 +24,20 @@ public class RentalAgreementController extends BaseController<RentalAgreement> {
     public void closeAgreement(@PathVariable Integer agreementId, @RequestParam Integer employeeId) {
         rentalAgreementService.closeAgreement(agreementId, employeeId);
     }
+
+    @GetMapping("/client/{clientId}")
+    List<RentalAgreement> findRentalAgreementByClientId(@PathVariable Integer clientId) {
+        return rentalAgreementService.findRentalAgreementByClientId(clientId);
+    }
+
+    @GetMapping("/tool/{toolId}")
+    List<RentalAgreement> findRentalAgreementByToolId(@PathVariable Integer toolId) {
+        return rentalAgreementService.findRentalAgreementByToolId(toolId);
+    }
+
+    @GetMapping("/overdue")
+    List<RentalAgreement> findOverdueRentalAgreements() {
+        return rentalAgreementService.findOverdueRentalAgreements();
+    }
+
 }

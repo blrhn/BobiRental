@@ -1,9 +1,12 @@
 package org.bobirental.rental.agreement;
 
 import org.bobirental.common.impl.BaseService;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class RentalAgreementService extends BaseService<RentalAgreement> {
@@ -31,4 +34,17 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
     public void closeAgreement(Integer agreementId, Integer employeeId) {
         rentalAgreementRepository.closeAgreement(agreementId, employeeId);
     }
+
+    List<RentalAgreement> findRentalAgreementByClientId(Integer clientId) {
+        return rentalAgreementRepository.findRentalAgreementByClientId(clientId);
+    }
+
+    List<RentalAgreement> findRentalAgreementByToolId(Integer toolId) {
+        return rentalAgreementRepository.findRentalAgreementByToolId(toolId);
+    }
+
+    List<RentalAgreement> findOverdueRentalAgreements() {
+        return rentalAgreementRepository.findOverdueRentalAgreements();
+    }
+
 }
