@@ -1,8 +1,6 @@
 package org.bobirental.rental.agreement;
 
 import org.bobirental.common.impl.BaseService;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

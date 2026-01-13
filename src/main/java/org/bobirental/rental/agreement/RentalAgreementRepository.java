@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface RentalAgreementRepository extends BaseRepository<RentalAgreement> {
@@ -36,4 +37,7 @@ public interface RentalAgreementRepository extends BaseRepository<RentalAgreemen
 
     @Query(value = "SELECT ra FROM RentalAgreement ra WHERE ra.isAgreementTerminated = false AND ra.agreementEstimatedTerminationDate < CURRENT_DATE")
     List<RentalAgreement> findOverdueRentalAgreements();
+
+    @Query(value = "SELECT DISTINCT r.client.id FROM RentalAgreement r WHERE r.client.id IN :clientIds AND r.isAgreementTerminated = FALSE")
+    Set<Integer> findClientIdsWithActiveAgreements(@Param("clientIds") Set<Integer> clientIds);
 }
