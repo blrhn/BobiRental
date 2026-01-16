@@ -1,5 +1,7 @@
 package org.bobirental.rental.fee;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bobirental.common.impl.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/fees")
+@Tag(name = "Fees")
 public class FeeController extends BaseController<Fee> {
 
     private final FeeService feeService;
@@ -19,18 +22,21 @@ public class FeeController extends BaseController<Fee> {
         this.feeService = feeService;
     }
 
-    @GetMapping("{clientId}/unpaid")
-    List<Fee> getUnpaidFees(@PathVariable Integer clientId) {
-        return feeService.findUnpaidFeesByClientId(clientId);
+    @GetMapping("/unpaid/{id}")
+    @Operation(summary = "Get unpaid fees by client id")
+    List<Fee> getUnpaidFees(@PathVariable Integer id) {
+        return feeService.findUnpaidFeesByClientId(id);
     }
 
-    @GetMapping("{clientId}/overdue")
-    List<Fee> getOverdueFees(@PathVariable Integer clientId) {
-        return feeService.findOverdueFeesByClientId(clientId);
+    @GetMapping("/overdue/{id}")
+    @Operation(summary = "Get overdue fees by client id")
+    List<Fee> getOverdueFees(@PathVariable Integer id) {
+        return feeService.findOverdueFeesByClientId(id);
     }
 
-    @GetMapping("{agreementId}/agreement")
-    List<Fee> getAgreementFees(@PathVariable Integer agreementId) {
-        return feeService.findFeesByAgreementId(agreementId);
+    @GetMapping("/agreement/{id}")
+    @Operation(summary = "Get fees by agreement id")
+    List<Fee> getAgreementFees(@PathVariable Integer id) {
+        return feeService.findFeesByAgreementId(id);
     }
 }
