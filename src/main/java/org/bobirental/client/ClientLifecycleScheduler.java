@@ -26,7 +26,7 @@ public class ClientLifecycleScheduler {
         this.feeRepository = feeRepository;
     }
 
-    @Scheduled(cron = "0 0 6,19 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void deleteOldClients() {
         LocalDate now = LocalDate.now();
 
@@ -48,7 +48,7 @@ public class ClientLifecycleScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 6,19 * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void updateClientHasDuty() {
         LocalDate now = LocalDate.now();
         Set<Integer> clientIdsWithOverdueFees = feeRepository.findClientIdsWithOverdueFees(now);
@@ -59,7 +59,7 @@ public class ClientLifecycleScheduler {
             boolean hasDebt = clientIdsWithOverdueFees.contains(client.getId());
 
             if (client.hasClientDuty() != hasDebt) {
-                client.setClientHasDuty(true);
+                client.setClientHasDuty(hasDebt);
                 clientsToUpdate.add(client);
             }
         }

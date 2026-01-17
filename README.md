@@ -19,6 +19,10 @@ Uruchomienie aplikacji (Linux):
 ```bash
    ./mvnw spring-boot:run
 ```
+Swagger
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
 ## Modyfikacja bazy danych
 Modyfikując cokolwiek, proszę stwórzcie nowy plik 

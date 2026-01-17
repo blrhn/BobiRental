@@ -31,7 +31,6 @@ public class Client extends Person {
     private boolean clientHasDuty;
 
     @Column(name = "client_removal_date")
-    @NotNull
     private LocalDate clientRemovalDate;
 
     public Client() {
