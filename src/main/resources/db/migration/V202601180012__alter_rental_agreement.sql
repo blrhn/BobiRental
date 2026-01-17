@@ -1,0 +1,2 @@
+ALTER TABLE rental_agreement
+ADD COLUMN to_be_reviewed BOOLEAN NOT NULL DEFAULT FALSE;

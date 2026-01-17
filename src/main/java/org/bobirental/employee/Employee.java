@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.bobirental.common.model.Person;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "employee")
@@ -16,6 +18,7 @@ import org.bobirental.common.model.Person;
 public class Employee extends Person {
     @Enumerated(EnumType.STRING)
     @Column(name = "employee_role")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull
     private EmployeeRole employeeRole;
 
@@ -28,6 +31,10 @@ public class Employee extends Person {
     @NotBlank
     @Size(max = 30, message = "{validation.name.size.too_long}")
     private String employeePassword;
+
+    public boolean isWarehouseManager() {
+        return this.employeeRole.equals(EmployeeRole.WAREHOUSE_MANAGER);
+    }
 
     public EmployeeRole getEmployeeRole() {
         return this.employeeRole;

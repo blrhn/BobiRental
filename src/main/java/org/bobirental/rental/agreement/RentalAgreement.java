@@ -47,9 +47,14 @@ public class RentalAgreement extends BaseEntity {
     @Size(max = 300, message = "{validation.name.size.too_long}")
     private String agreementComment;
 
+    @Column(name = "to_be_reviewed")
+    @NotNull
+    private boolean toBeReviewed;
+
     public RentalAgreement() {
         this.agreementExecutionDate = LocalDate.now();
         this.isAgreementTerminated = false;
+        this.toBeReviewed = false;
     }
 
     public LocalDate getAgreementExecutionDate() {
@@ -84,6 +89,14 @@ public class RentalAgreement extends BaseEntity {
         this.isAgreementTerminated = agreementTerminated;
     }
 
+    public boolean isToBeReviewed() {
+        return this.toBeReviewed;
+    }
+
+    public void setToBeReviewed(boolean toBeReviewed) {
+        this.toBeReviewed = toBeReviewed;
+    }
+
     public Client getClient() {
         return this.client;
     }
@@ -106,5 +119,13 @@ public class RentalAgreement extends BaseEntity {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    public String  getAgreementComment() {
+        return this.agreementComment;
+    }
+
+    public void setAgreementComment(String agreementComment) {
+        this.agreementComment = agreementComment;
     }
 }
