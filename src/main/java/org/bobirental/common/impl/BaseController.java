@@ -25,22 +25,9 @@ public abstract class BaseController<T extends BaseEntity> {
         return baseService.findEntityById(id);
     }
 
-    @PreAuthorize("hasAnyRole('REGULAR_EMPLOYEE', 'WAREHOUSE_MANAGER')")
-    @PostMapping
-    public T createEntity(@RequestBody T entity) {
-        return baseService.saveEntity(entity);
-    }
-
-    @PreAuthorize("hasAnyRole('REGULAR_EMPLOYEE', 'WAREHOUSE_MANAGER')")
-    @PutMapping("/{id}")
-    public T updateEntity(@RequestBody T entity,  @PathVariable Integer id) {
-        return baseService.updateEntity(entity);
-    }
-
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
     @DeleteMapping("/{id}")
     public void deleteEntity(@PathVariable Integer id) {
         baseService.deleteEntityById(id);
     }
-
 }

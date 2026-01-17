@@ -20,14 +20,12 @@ public class ToolEventController extends BaseController<ToolEvent> {
         this.toolEventService = toolEventService;
     }
 
-    @Override
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
     @PostMapping
     public ToolEvent createEntity(@RequestBody ToolEvent entity) {
         return toolEventService.saveEntity(entity);
     }
 
-    @Override
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
     @PutMapping("/{id}")
     public ToolEvent updateEntity(@RequestBody ToolEvent entity,  @PathVariable Integer id) {

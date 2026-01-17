@@ -40,4 +40,8 @@ public interface RentalAgreementRepository extends BaseRepository<RentalAgreemen
 
     @Query(value = "SELECT DISTINCT r.client.id FROM RentalAgreement r WHERE r.client.id IN :clientIds AND r.isAgreementTerminated = FALSE")
     Set<Integer> findClientIdsWithActiveAgreements(@Param("clientIds") Set<Integer> clientIds);
+
+    List<RentalAgreement> findRentalAgreementsByToBeReviewedTrueAndIsAgreementTerminatedFalse();
+
+    RentalAgreement findRentalAgreementByIdAndToBeReviewedTrueAndIsAgreementTerminatedFalse(Integer id);
 }

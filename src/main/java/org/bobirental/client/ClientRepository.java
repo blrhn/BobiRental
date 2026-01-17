@@ -17,5 +17,8 @@ public interface ClientRepository extends BaseRepository<Client> {
     @Query(value = "SELECT total_client_fees(:clientId)")
     BigDecimal getFeesById(@Param("clientId") Integer clientId);
 
+    @Query(value = "SELECT can_client_create_agreement(:clientId)")
+    boolean canClientCreateAgreement(@Param("clientId") Integer clientId);
+
     List<Client> findByClientRemovalDateAndClientHasDutyFalse(LocalDate clientRemovalDate);
 }

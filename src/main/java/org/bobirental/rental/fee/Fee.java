@@ -6,6 +6,8 @@ import org.bobirental.client.Client;
 import org.bobirental.common.model.BaseEntity;
 import org.bobirental.employee.Employee;
 import org.bobirental.rental.agreement.RentalAgreement;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 })
 public class Fee extends BaseEntity {
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "fee_category")
     @NotNull
     private FeeCategory feeCategory;
@@ -98,5 +101,21 @@ public class Fee extends BaseEntity {
 
     public boolean isFeePaid() {
         return this.isFeePaid;
+    }
+
+    public void setIsFeePaid(boolean isFeePaid) {
+        this.isFeePaid = isFeePaid;
+    }
+
+    public void setFeeDutyDate(LocalDate feeDutyDate) {
+        this.feeDutyDate = feeDutyDate;
+    }
+
+    public void setFeeFinalizedDate(LocalDate feeFinalizedDate) {
+        this.feeFinalizedDate = feeFinalizedDate;
+    }
+
+    public LocalDate getFeeFinalizedDate() {
+        return this.feeFinalizedDate;
     }
 }
