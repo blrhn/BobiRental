@@ -1,5 +1,6 @@
 package org.bobirental.tool;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.bobirental.common.impl.BaseService;
 import org.bobirental.employee.Employee;
 import org.bobirental.employee.EmployeeRepository;
@@ -26,8 +27,8 @@ public class ToolEventService extends BaseService<ToolEvent> {
     }
 
     public Integer createToolEvent(ToolEventRequest toolEventRequest) {
-        Tool tool = toolRepository.findById(toolEventRequest.toolId()).orElseThrow();
-        Employee employee = employeeRepository.findById(toolEventRequest.employeeId()).orElseThrow();
+        Tool tool = toolRepository.findById(toolEventRequest.toolId()).orElseThrow(() -> new EntityNotFoundException("Tool not found"));
+        Employee employee = employeeRepository.findById(toolEventRequest.employeeId()).orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
         ToolEvent toolEvent = new ToolEvent();
 
