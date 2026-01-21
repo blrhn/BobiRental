@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -121,7 +122,7 @@ public class RentingToolIntegrationTests {
 
         // Wartosc oczekiwana: dostepny sprzet z bazy danych
         // oraz tym samym: brak wyswietlenia wiadomosci: "Sprzet nie powinien byc null" oraz "Sprzet powinien byc dostepny"
-        Tool toolFromDb = toolService.findEntityById(toolId);
+        Tool toolFromDb = toolService.findAvailableById(toolId);
         assertNotNull(toolFromDb, "Sprzet nie powinien byc null");
         assertEquals(AvailabilityStatus.AVAILABLE, toolFromDb.getToolAvailabilityStatus(), "Sprzet powinien byc dostepny");
 
@@ -171,4 +172,6 @@ public class RentingToolIntegrationTests {
                 "Nowa umowa nie powinna być do przeglądu");
         // Uzyskano: Brak wyswietlenia zadnego z ponizszych komunikatow
     }
+
+
 }

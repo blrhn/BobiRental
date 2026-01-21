@@ -50,11 +50,11 @@ public class ToolService extends BaseService<Tool> {
         toolEventService.createToolEvent(toolEventRequest);
     }
 
-    Tool findAvailableById(Integer id) {
+    public Tool findAvailableById(Integer id) {
         return toolRepository.checkIfAvailableById(id);
     }
 
-    List<Tool> findAvailableByCategory(ToolCategory category) {
+    public List<Tool> findAvailableByCategory(ToolCategory category) {
         return toolRepository.findAvailableToolsByCategory(category);
     }
 }
