@@ -78,15 +78,15 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
         rentalAgreementRepository.closeAgreement(agreementId, employeeId);
     }
 
-    List<RentalAgreement> findRentalAgreementByClientId(Integer clientId) {
+    public List<RentalAgreement> findRentalAgreementByClientId(Integer clientId) {
         return rentalAgreementRepository.findRentalAgreementByClientId(clientId);
     }
 
-    List<RentalAgreement> findRentalAgreementByToolId(Integer toolId) {
+    public List<RentalAgreement> findRentalAgreementByToolId(Integer toolId) {
         return rentalAgreementRepository.findRentalAgreementByToolId(toolId);
     }
 
-    List<RentalAgreement> findOverdueRentalAgreements() {
+    public List<RentalAgreement> findOverdueRentalAgreements() {
         return rentalAgreementRepository.findOverdueRentalAgreements();
     }
 
