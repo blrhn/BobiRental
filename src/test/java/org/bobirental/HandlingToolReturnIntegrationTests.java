@@ -1,10 +1,8 @@
 package org.bobirental;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.bobirental.client.Client;
 import org.bobirental.client.ClientRepository;
-import org.bobirental.client.ClientService;
 import org.bobirental.employee.Employee;
 import org.bobirental.employee.EmployeeRepository;
 import org.bobirental.employee.EmployeeRole;
@@ -52,12 +50,6 @@ public class HandlingToolReturnIntegrationTests {
     @Autowired
     private FeeService feeService;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
-    private ClientService clientService;
-
     private Client testClient;
     private Employee testRegularEmployee;
     private Employee testWarehouseManager;
@@ -103,7 +95,7 @@ public class HandlingToolReturnIntegrationTests {
         testWarehouseManager.setEmployeePassword("haslo123");
         testWarehouseManager.setEmployeeRole(EmployeeRole.WAREHOUSE_MANAGER);
 
-        testWarehouseManager = employeeRepository.save(testRegularEmployee);
+        testWarehouseManager = employeeRepository.save(testWarehouseManager);
     }
 
     private void setTestTool() {

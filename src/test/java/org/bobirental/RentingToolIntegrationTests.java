@@ -7,7 +7,6 @@ import org.bobirental.client.ClientService;
 import org.bobirental.employee.Employee;
 import org.bobirental.employee.EmployeeRepository;
 import org.bobirental.employee.EmployeeRole;
-import org.bobirental.employee.EmployeeService;
 import org.bobirental.rental.agreement.RentalAgreement;
 import org.bobirental.rental.agreement.RentalAgreementRepository;
 import org.bobirental.rental.agreement.RentalAgreementService;
@@ -20,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,9 +46,6 @@ public class RentingToolIntegrationTests {
 
     @Autowired
     private ClientService clientService;
-
-    @Autowired
-    private EmployeeService employeeService;
 
     private Client testClient;
     private Employee testEmployee;
@@ -172,6 +167,4 @@ public class RentingToolIntegrationTests {
                 "Nowa umowa nie powinna być do przeglądu");
         // Uzyskano: Brak wyswietlenia zadnego z ponizszych komunikatow
     }
-
-
 }
