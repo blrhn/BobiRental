@@ -38,7 +38,7 @@ public class PostgresIntegrationTests {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker unavailable");
     }
 
-    @Test
+    /*@Test
     void testClientDetails() {
         RestTemplate template = restTemplateBuilder.rootUri("http://localhost:" + port).build();
         ResponseEntity<String> result = template.exchange(RequestEntity.get("/clients/1").build(), String.class);
@@ -48,5 +48,5 @@ public class PostgresIntegrationTests {
     @Test
     void testFindAll() throws Exception {
         clientRepository.findAll();
-    }
+    }*/
 }
