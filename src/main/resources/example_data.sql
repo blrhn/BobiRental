@@ -1,3 +1,5 @@
+TRUNCATE TABLE tool, employee, client, rental_agreement, tool_event, fee RESTART IDENTITY CASCADE;
+
 -- Sprzet budowlany
 INSERT INTO tool (tool_name, tool_availability_status, tool_description, tool_category, tool_price) VALUES
 -- Wiertarki
@@ -117,3 +119,7 @@ INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee,
 -- Dodatkowe zaległe opłaty dla klienta ID 6 (Ewa Mazur - ma client_has_duty = TRUE)
 INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
     ('RENTAL_FEE', 3, 6, 5, 200.00, FALSE, CURRENT_DATE - INTERVAL '20 days', NULL);
+
+UPDATE tool
+SET tool_availability_status = 'AVAILABLE'
+WHERE tool_id IN (1, 2, 4, 5, 7, 9, 10, 12);

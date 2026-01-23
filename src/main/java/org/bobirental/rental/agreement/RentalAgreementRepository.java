@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Repository
 public interface RentalAgreementRepository extends BaseRepository<RentalAgreement> {
-    @Query(value = "SELECT create_rental_agreement_func(:clientId, :toolId, :employeeId, :estimatedDate, :comment)")
+    @Query(value = "SELECT create_rental_agreement_func(:clientId, :toolId, :employeeId, :estimatedDate, :comment)", nativeQuery = true)
     Integer createRentalAgreement(
             @Param("clientId") Integer clientId,
             @Param("toolId") Integer toolId,
@@ -20,7 +20,7 @@ public interface RentalAgreementRepository extends BaseRepository<RentalAgreemen
             @Param("estimatedDate") LocalDate estimatedDate,
             @Param("comment") String comment);
 
-    @Query(value = "SELECT create_rental_agreement_func(:clientId, :toolId, :employeeId, :estimatedDate, :comment)")
+    @Query(value = "SELECT create_rental_agreement_func(:clientId, :toolId, :employeeId, :estimatedDate, :comment)", nativeQuery = true)
     Integer createRentalAgreement(
             @Param("clientId") Integer clientId,
             @Param("toolId") Integer toolId,

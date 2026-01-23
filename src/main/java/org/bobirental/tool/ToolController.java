@@ -51,4 +51,10 @@ public class ToolController {
     public List<Tool> findAvailableToolsByCategory(@PathVariable ToolCategory category) {
         return toolService.findAvailableByCategory(category);
     }
+
+    @GetMapping(value = "get/{id}")
+    @Operation(summary = "Get tool by id")
+    public Tool findToolById(@PathVariable Integer id) {
+        return toolService.findEntityById(id);
+    }
 }

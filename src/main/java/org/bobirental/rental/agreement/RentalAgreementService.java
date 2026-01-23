@@ -1,6 +1,7 @@
 package org.bobirental.rental.agreement;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.bobirental.client.Client;
 import org.bobirental.client.ClientRepository;
 import org.bobirental.common.impl.BaseService;
@@ -74,6 +75,7 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
         rentalAgreementRepository.save(agreement);
     }
 
+    @Transactional
     public void closeAgreement(Integer agreementId, Integer employeeId) {
         rentalAgreementRepository.closeAgreement(agreementId, employeeId);
     }
