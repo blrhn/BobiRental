@@ -52,9 +52,17 @@ public class ToolController {
         return toolService.findAvailableByCategory(category);
     }
 
-    @GetMapping(value = "get/{id}")
+    @PreAuthorize("hasAnyRole('REGULAR_EMPLOYEE', 'WAREHOUSE_MANAGER')")
+    @GetMapping(value = "/get/{id}")
     @Operation(summary = "Get tool by id")
     public Tool findToolById(@PathVariable Integer id) {
         return toolService.findEntityById(id);
+    }
+
+    @PreAuthorize("hasAnyRole('REGULAR_EMPLOYEE', 'WAREHOUSE_MANAGER')")
+    @GetMapping()
+    @Operation(summary = "Get all tools")
+    public List<Tool>  findAllTools() {
+        return toolService.findAllEntities();
     }
 }
