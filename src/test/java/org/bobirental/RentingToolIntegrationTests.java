@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,6 +119,96 @@ public class RentingToolIntegrationTests {
         // Wartosc oczekiwana: dostepny sprzet z bazy danych
         // oraz tym samym: brak wyswietlenia wiadomosci: "Sprzet nie powinien byc null" oraz "Sprzet powinien byc dostepny"
         Tool toolFromDb = toolService.findAvailableById(toolId);
+        assertNotNull(toolFromDb, "Sprzet nie powinien byc null");
+        assertEquals(AvailabilityStatus.AVAILABLE, toolFromDb.getToolAvailabilityStatus(), "Sprzet powinien byc dostepny");
+
+        // Zatwierdzenie wypozyczenia oraz przygotowanie danych do umowy
+        // Rejestracja wypozyczenia sprzetu, wylaczenie sprzetu z dostepnosci
+        // Wprowadzenie danych klienta i okresu wypozyczenia
+
+        LocalDate estimatedEndDate = LocalDate.now().plusDays(7);
+        RentalAgreementRequest agreementRequest = new RentalAgreementRequest(
+                estimatedEndDate,
+                clientId,
+                toolId,
+                employeeId,
+                "Na potrzeby remontu kuchni"
+        );
+
+        // Powyzsze + generowanie numeru umowy + rejestracja umowy w bazie danych
+        // Wartosc oczekiwana: Numer nowoutworzonej umowy oraz tym samym brak wiadomosci: "System powinien wygenerowac nr umowy"
+        Integer agreementId =  rentalAgreementService.createRentalAgreement(agreementRequest);
+        // potwierdzenie zawarcia umowy
+        assertNotNull(agreementId, "System powinien wygenerowac nr umowy");
+        // Uzyskano: Brak wyswietlenia wiadomosci: "System powinien wygenerowac nr umowy"
+
+        // Sprawdzenie potwierdzenia zawarcia umowy
+
+        // Wartosc oczekiwana: Nowoutworzona ummowa oraz tym samym brak wyrzucenia wyjatku:
+        // "Umowa nie została zapisana w bazie"
+        RentalAgreement createdAgreement = rentalAgreementRepository
+                .findById(agreementId)
+                .orElseThrow(() -> new AssertionError("Umowa nie została zapisana w bazie"));
+
+        // Sprawdzenie wszystkich danych umowy
+        // Oczekiwany wynik: Brak wyswietlenia zadnego z ponizszych komunikatow
+        assertEquals(clientId, createdAgreement.getClient().getId(),
+                "Nr klienta w umowie musi byc poprawny");
+        assertEquals(toolId, createdAgreement.getTool().getId(),
+                "Nr sprzętu w umowie musi byc poprawny");
+        assertEquals(employeeId, createdAgreement.getEmployee().getId(),
+                "Nr pracownika w umowie musi byc poprawny");
+        assertEquals(LocalDate.now(), createdAgreement.getAgreementExecutionDate(),
+                "Data rozpoczecia to dzisiejsza data");
+        assertEquals(estimatedEndDate, createdAgreement.getAgreementEstimatedTerminationDate(),
+                "Data szacowanego zakokonzenia musi być poprawna");
+        assertFalse(createdAgreement.isAgreementTerminated(),
+                "Nowa umowa nie powinna być zamknieta");
+        assertFalse(createdAgreement.isToBeReviewed(),
+                "Nowa umowa nie powinna być do przeglądu");
+        // Uzyskano: Brak wyswietlenia zadnego z ponizszych komunikatow
+    }
+
+    // Test zgodny z diagramem: Wypozyczenie sprzetu Budowlanego: pracownik sprawdza dostepnosc po kategorii
+    @Test
+    void testCompleteRentingToolProcess_ShouldCreateAgreementSuccessfully_WhenEmployeeKnowsToolCategory() {
+        // kategoria sprzetu
+        ToolCategory toolCategory = ToolCategory.DRILL;
+        // pozostałe wartosci znane przez pracownika
+        Integer clientId =  testClient.getId();
+        Integer employeeId = testEmployee.getId();
+
+        // Wyszukanie dostepnych sprzetow po kategorii
+
+        // Wartosc oczekiwana: lista dostepnych sprzetow z danej kategorii oraz tym samym brak wyswietlenia
+        // komunikatow: "Lista dostepnych sprzetow nie powinna byc null"
+        // oraz "Kazdy sprzet na liscie wynikowej powinien byc dostepny"
+        List<Tool> toolsFromDbByCategory = toolService.findAvailableByCategory(toolCategory);
+        assertNotNull(toolsFromDbByCategory, "Lista dostepnych sprzetow nie powinna byc null");
+        assertTrue(toolsFromDbByCategory.stream()
+                        .allMatch(tool -> tool.getToolAvailabilityStatus().equals(AvailabilityStatus.AVAILABLE)),
+                "Kazdy sprzet na liscie wynikowej powinien byc dostepny");
+
+        // Pracownik wybiera dostepny sprzet
+        Integer toolId = testTool.getId();
+
+        // Weryfikacja statusu klienta i dostepnosci sprzetu
+
+        // Wartosc oczekiwana: pobranie klienta z bazy danych
+        // oraz tym samym: brak wyswietlenia wiadomosci: "Klient nie powinien byc null"
+        Client clientFromDb = clientService.findEntityById(clientId);
+        assertNotNull(clientFromDb, "Klient nie powinien byc null");
+        // Uzyskano: Brak wyswietlenia wiadomosci: "Klient nie powinien byc null"
+
+        // Wartosc oczekiwana: flaga true oznaczajaca, ze klient moze zawrzec nowa umowe
+        // oraz tym samym: brak wyswietlenia wiadomosci: "Klient powinien moc utworzyc umowe"
+        boolean canCreateAgreement = clientService.canClientCreateAgreement(clientId);
+        assertTrue(canCreateAgreement, "Klient powinien moc utworzyc umowe");
+        // Uzyskano: Brak wyswietlenia wiadomosci: "Klient powinien moc utworzyc umowe"
+
+        // Wartosc oczekiwana: dostepny sprzet z bazy danych
+        // oraz tym samym: brak wyswietlenia wiadomosci: "Sprzet nie powinien byc null" oraz "Sprzet powinien byc dostepny"
+        Tool toolFromDb = toolService.findEntityById(toolId);
         assertNotNull(toolFromDb, "Sprzet nie powinien byc null");
         assertEquals(AvailabilityStatus.AVAILABLE, toolFromDb.getToolAvailabilityStatus(), "Sprzet powinien byc dostepny");
 
