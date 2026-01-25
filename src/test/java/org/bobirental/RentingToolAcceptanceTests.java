@@ -92,7 +92,6 @@ public class RentingToolAcceptanceTests {
                         extract().asString();
 
         Integer agreementId = Integer.parseInt(createRentalAgreementResponse);
-        System.out.println("Rental Agreement ID: " + agreementId);
 
         // potwierdzenie zawarcia umowy
         String rentalAgreementResponse =
@@ -111,9 +110,6 @@ public class RentingToolAcceptanceTests {
                         body("agreementTerminated", equalTo(false)).
                         body("agreementExecutionDate", equalTo(LocalDate.now().toString())).
                         extract().asString();
-
-        System.out.println("Rental Agreement Response: " + rentalAgreementResponse);
-
     }
 
     private Map<String, Object> createRentalAgreementRequest(Integer toolId, Integer clientId) {
@@ -180,7 +176,6 @@ public class RentingToolAcceptanceTests {
                         extract().asString();
 
         Integer agreementId = Integer.parseInt(createRentalAgreementResponse);
-        System.out.println("Rental Agreement ID: " + agreementId);
 
         // potwierdzenie zawarcia umowy
         String rentalAgreementResponse =
@@ -199,8 +194,6 @@ public class RentingToolAcceptanceTests {
                         body("agreementTerminated", equalTo(false)).
                         body("agreementExecutionDate", equalTo(LocalDate.now().toString())).
                         extract().asString();
-
-        System.out.println("Rental Agreement Response: " + rentalAgreementResponse);
     }
 
 

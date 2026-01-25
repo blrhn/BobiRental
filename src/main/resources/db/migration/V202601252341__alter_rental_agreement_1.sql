@@ -1,0 +1,2 @@
+ALTER TABLE rental_agreement
+ADD COLUMN has_penalty BOOLEAN NOT NULL DEFAULT FALSE;

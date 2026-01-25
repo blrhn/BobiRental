@@ -10,8 +10,11 @@ import org.bobirental.employee.EmployeeRepository;
 import org.bobirental.rental.agreement.dto.RentalAgreementRequest;
 import org.bobirental.tool.Tool;
 import org.bobirental.tool.ToolRepository;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -25,7 +28,8 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
             RentalAgreementRepository rentalAgreementRepository,
             ClientRepository clientRepository,
             EmployeeRepository employeeRepository,
-            ToolRepository toolRepository) {
+            ToolRepository toolRepository,
+            JdbcTemplate jdbcTemplate) {
         super(rentalAgreementRepository);
         this.rentalAgreementRepository = rentalAgreementRepository;
         this.clientRepository = clientRepository;
@@ -78,6 +82,8 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
     @Transactional
     public void closeAgreement(Integer agreementId, Integer employeeId) {
         rentalAgreementRepository.closeAgreement(agreementId, employeeId);
+        /*String sql = "CALL close_agreement(?, ?)";
+        jdbcTemplate.update(sql, agreementId, employeeId);*/
     }
 
     public List<RentalAgreement> findRentalAgreementByClientId(Integer clientId) {
@@ -98,6 +104,19 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
 
     public RentalAgreement findRentalAgreementToBeReviewed(Integer id) {
         return rentalAgreementRepository.findRentalAgreementByIdAndToBeReviewedTrueAndIsAgreementTerminatedFalse(id);
+    }
+
+    public boolean toggleHasPenalty(Integer id) {
+        RentalAgreement rentalAgreement = rentalAgreementRepository
+                .findById(id).orElseThrow(() -> new EntityNotFoundException("Rental Agreement not found"));
+
+        boolean hasPenalty = rentalAgreement.hasPenalty();
+        rentalAgreement.setHasPenalty(!hasPenalty);
+
+        rentalAgreementRepository.save(rentalAgreement);
+
+        return !hasPenalty;
+
     }
 
 }

@@ -51,10 +51,15 @@ public class RentalAgreement extends BaseEntity {
     @NotNull
     private boolean toBeReviewed;
 
+    @Column(name = "has_penalty")
+    @NotNull
+    private boolean hasPenalty;
+
     public RentalAgreement() {
         this.agreementExecutionDate = LocalDate.now();
         this.isAgreementTerminated = false;
         this.toBeReviewed = false;
+        this.hasPenalty = false;
     }
 
     public LocalDate getAgreementExecutionDate() {
@@ -95,6 +100,14 @@ public class RentalAgreement extends BaseEntity {
 
     public void setToBeReviewed(boolean toBeReviewed) {
         this.toBeReviewed = toBeReviewed;
+    }
+
+    public boolean hasPenalty() {
+        return this.hasPenalty;
+    }
+
+    public void setHasPenalty(boolean hasPenalty) {
+        this.hasPenalty = hasPenalty;
     }
 
     public Client getClient() {

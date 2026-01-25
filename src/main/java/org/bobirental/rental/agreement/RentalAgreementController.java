@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bobirental.common.impl.BaseController;
 import org.bobirental.rental.agreement.dto.RentalAgreementRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +31,10 @@ public class RentalAgreementController extends BaseController<RentalAgreement> {
     @Operation(summary = "Close rental agreement by id")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
     @PostMapping("/close/{id}/")
-    public void closeAgreement(@PathVariable Integer id, @RequestParam Integer employeeId) {
+    public ResponseEntity<Void> closeAgreement(@PathVariable Integer id, @RequestParam Integer employeeId) {
         rentalAgreementService.closeAgreement(id, employeeId);
+
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Get rental agreement by client id")
@@ -60,6 +63,13 @@ public class RentalAgreementController extends BaseController<RentalAgreement> {
     @PreAuthorize("hasAnyRole('REGULAR_EMPLOYEE', 'WAREHOUSE_MANAGER')")
     public void initiateReturn(@PathVariable Integer id, @RequestParam Integer clientId) {
         rentalAgreementService.initiateReturn(id, clientId);
+    }
+
+    @Operation(summary = "Toggles has_penalty flag")
+    @PutMapping("/toggle-has-penalty/{id}")
+    @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
+    public boolean toggleHasPenalty(@PathVariable Integer id) {
+        return rentalAgreementService.toggleHasPenalty(id);
     }
 
     @Operation(summary = "Get all rental agreements that have to be reviewed")
