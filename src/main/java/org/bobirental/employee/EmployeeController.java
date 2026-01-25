@@ -3,6 +3,7 @@ package org.bobirental.employee;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bobirental.common.impl.BaseController;
 import org.bobirental.employee.dto.LoginRequest;
+import org.bobirental.employee.dto.LoginResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,9 +29,10 @@ public class EmployeeController extends BaseController<Employee> {
 
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
     @PutMapping("/{id}")
-    public Employee updateEntity(@RequestBody Employee entity,  @PathVariable Integer id) {
+    public Employee updateEntity(@RequestBody Employee entity, @PathVariable Integer id) {
         return employeeService.updateEntity(entity);
     }
+    
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Employee employee) {
@@ -48,14 +50,29 @@ public class EmployeeController extends BaseController<Employee> {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+            // Authenticate user
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.employeeLogin(),
-                            loginRequest.employeePassword()));
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.employeeLogin(),
+                    loginRequest.employeePassword()
+                )
+            );
 
+            // Fetch employee from DB
             Employee employee = employeeService.findByLogin(loginRequest.employeeLogin());
 
-            return ResponseEntity.ok(employee);
+            if (employee == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            // Return only safe info
+            LoginResponse response = new LoginResponse(
+                employee.getId(),
+                employee.getEmployeeLogin(),
+                employee.getEmployeeRole().name() // important: use getEmployeeRole()
+            );
+
+            return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");

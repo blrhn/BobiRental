@@ -16,13 +16,16 @@ import org.hibernate.type.SqlTypes;
         @AttributeOverride(name = "surname", column = @Column(name = "employee_surname")),
 })
 public class Employee extends Person {
+
+    // Role of the employee
     @Enumerated(EnumType.STRING)
-    @Column(name = "employee_role")
+    @Column(name = "employee_role", nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @NotNull
     private EmployeeRole employeeRole;
 
-    @Column(name = "employee_login")
+    // Login credentials
+    @Column(name = "employee_login", unique = true)
     @NotBlank
     @Size(max = 20, message = "{validation.name.size.too_long}")
     private String employeeLogin;
@@ -32,10 +35,12 @@ public class Employee extends Person {
     @Size(max = 30, message = "{validation.name.size.too_long}")
     private String employeePassword;
 
+    // Convenience method for role checking
     public boolean isWarehouseManager() {
-        return this.employeeRole.equals(EmployeeRole.WAREHOUSE_MANAGER);
+        return this.employeeRole == EmployeeRole.WAREHOUSE_MANAGER;
     }
 
+    // --- Getters and Setters ---
     public EmployeeRole getEmployeeRole() {
         return this.employeeRole;
     }

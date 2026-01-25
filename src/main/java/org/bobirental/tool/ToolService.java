@@ -4,6 +4,7 @@ import org.bobirental.common.impl.BaseService;
 import org.bobirental.tool.dto.ToolEventRequest;
 import org.bobirental.tool.dto.ToolRequest;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class ToolService extends BaseService<Tool> {
         tool.setToolCategory(toolRequest.toolCategory());
         tool.setToolDescription(toolRequest.toolDescription());
         tool.setToolAvailabilityStatus(toolRequest.availabilityStatus());
+
+        tool.setToolEntryDate(LocalDate.now());
 
         return toolRepository.save(tool).getId();
     }
