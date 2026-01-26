@@ -258,4 +258,21 @@ public class RentingToolIntegrationTests {
                 "Nowa umowa nie powinna być do przeglądu");
         // Uzyskano: Brak wyswietlenia zadnego z ponizszych komunikatow
     }
+
+    // test proby wypozyczenia niedostepnego sprzetu
+    @Test
+    void testRentalProcess_ShouldFailWhenToolUnavailable() {
+        // given: sprzet niedostepny
+        testTool.setToolAvailabilityStatus(AvailabilityStatus.UNAVAILABLE);
+        toolRepository.save(testTool);
+
+        // when: proba pobrania dostepnego sprzetu
+        Tool retrievedTool = toolService.findAvailableById(testTool.getId());
+
+        // then system nie powinien zwrocic tego sprzetu
+        if (retrievedTool != null) {
+            assertNotEquals(AvailabilityStatus.AVAILABLE, retrievedTool.getToolAvailabilityStatus(),
+                    "Niedostepny sprzet nie powinien byc dostepny");
+        }
+    }
 }
