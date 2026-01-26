@@ -45,7 +45,7 @@ export default function Navbar() {
       >
         Rental Agreements
       </NavLink>
-      {auth?.role === "WAREHOUSE_MANAGER" && (
+      {/* {auth?.role === "WAREHOUSE_MANAGER" && (
         <NavLink
           to="/admin"
           className={({ isActive }) =>
@@ -54,7 +54,7 @@ export default function Navbar() {
         >
           Admin
         </NavLink>
-      )}
+      )} */}
       <div className="flex flex-col ml-auto ">
         <span className="text-sm text-gray-600">Role: {auth?.role}</span>
         <span className="text-sm text-gray-600">
