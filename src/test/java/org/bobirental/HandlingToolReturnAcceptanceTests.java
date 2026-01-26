@@ -80,9 +80,9 @@ public class HandlingToolReturnAcceptanceTests {
                         auth().preemptive().basic("j.kowalski", "haslo123").
                         contentType(ContentType.JSON).
                         pathParam("id", agreementId).
-                        queryParam("employeeId", warehouseManagerId).
+                        pathParam("employeeId", warehouseManagerId).
                 when().
-                        post("/rental_agreements/close/{id}/").
+                        post("/rental_agreements/close/{id}/{employeeId}").
                 then().
                         statusCode(200).
                         extract().asString();

@@ -63,7 +63,8 @@ public class FeeServiceTest {
                 1,
                 new BigDecimal("250.45"),
                 LocalDate.now().plusDays(7),
-                null
+                null,
+                false
         );
 
         setMockClient();
@@ -162,7 +163,8 @@ public class FeeServiceTest {
                 1,
                 new BigDecimal("250.45"),
                 LocalDate.now().plusDays(7),
-                null);
+                null,
+                false);
         when(rentalAgreementRepository.findById(999)).thenReturn(Optional.empty());
 
         // when proba utworzenia nowej oplaty oraz then sprawdzenie wiadomosci zwiazanej z wyrzuconym
@@ -185,7 +187,8 @@ public class FeeServiceTest {
                 1,
                 new BigDecimal("250.45"),
                 LocalDate.now().plusDays(7),
-                LocalDate.now());
+                LocalDate.now(),
+                false);
         when(feeRepository.findById(1)).thenReturn(Optional.of(mockFee));
         when(feeRepository.save(any(Fee.class))).thenReturn(mockFee);
 

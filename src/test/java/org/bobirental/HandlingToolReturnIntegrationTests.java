@@ -226,7 +226,8 @@ public class HandlingToolReturnIntegrationTests {
                 testWarehouseManager.getId(),
                 new BigDecimal("200.00"),
                 LocalDate.now().plusDays(14),
-                null
+                null,
+                false
         );
 
         // Wartosc oczekiwana: numer oplaty oraz tym samym:

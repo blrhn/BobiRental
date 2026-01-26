@@ -110,7 +110,7 @@ public class RentalAgreementService extends BaseService<RentalAgreement> {
         RentalAgreement rentalAgreement = rentalAgreementRepository
                 .findById(id).orElseThrow(() -> new EntityNotFoundException("Rental Agreement not found"));
 
-        boolean hasPenalty = rentalAgreement.hasPenalty();
+        boolean hasPenalty = rentalAgreement.getHasPenalty();
         rentalAgreement.setHasPenalty(!hasPenalty);
 
         rentalAgreementRepository.save(rentalAgreement);

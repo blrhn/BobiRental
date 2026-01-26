@@ -102,7 +102,7 @@ public class RentalAgreement extends BaseEntity {
         this.toBeReviewed = toBeReviewed;
     }
 
-    public boolean hasPenalty() {
+    public boolean getHasPenalty() {
         return this.hasPenalty;
     }
 
