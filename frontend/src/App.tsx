@@ -8,7 +8,7 @@ import Warehouse from "@/pages/Warehouse";
 import Clients from "@/pages/Clients";
 import Navbar from "@/components/Navbar";
 import RentalAgreement from "@/pages/RentalAgreement";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
 
 function AppRoutes() {
   const { auth } = useAuth();
@@ -24,11 +24,9 @@ function AppRoutes() {
             <Toaster />
             <Routes>
               <Route path="/" element={<HomePage />} />
-              {/* All employees can access Warehouse page */}
               <Route path="/warehouse" element={<Warehouse />} />
-              <Route path="/clients" element={<Clients/>} />
-              <Route path="/rental-agreements" element={<RentalAgreement/>} />
-              {/* Only warehouse managers can see orders or admin pages */}
+              <Route path="/clients" element={<Clients />} />
+              <Route path="/rental-agreements" element={<RentalAgreement />} />
               {auth?.role === "WAREHOUSE_MANAGER" && (
                 <>
                   {/* <Route path="/orders" element={<OrdersPage />} /> */}

@@ -7,14 +7,12 @@ import { useAuth } from "@/auth/AuthContext";
 import { authFetch } from "@/api";
 import { toast } from "react-hot-toast";
 
-/* ================= TYPES ================= */
-
 interface Client {
   id: number;
   name: string;
   surname: string;
 }
-
+const MAX_RENTAL_DAYS = 30;
 interface Tool {
   id: number;
   toolName: string;
@@ -25,23 +23,18 @@ interface Tool {
 }
 
 interface RentalAgreement {
-    id: number;
-    toBeReviewed: boolean;
-    agreementActualTerminationDate: string | null;
-    hasPenalty: boolean;
-    client: Client;
-    tool: Tool;
-  }
-  
-  
-
-/* ================= COMPONENT ================= */
+  id: number;
+  toBeReviewed: boolean;
+  agreementActualTerminationDate: string | null;
+  hasPenalty: boolean;
+  client: Client;
+  tool: Tool;
+}
 
 const RentalAgreementPage = () => {
   const { auth } = useAuth();
   const isManager = auth?.role === "WAREHOUSE_MANAGER";
 
-  /* ===== CREATE AGREEMENT STATE ===== */
   const [clients, setClients] = useState<Client[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
@@ -50,12 +43,9 @@ const RentalAgreementPage = () => {
   const [agreementComment, setAgreementComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /* ===== AGREEMENTS STATE ===== */
   const [agreements, setAgreements] = useState<RentalAgreement[]>([]);
   const [feeAmount, setFeeAmount] = useState<number>(0);
   const [loadingId, setLoadingId] = useState<number | null>(null);
-
-  /* ================= FETCH ================= */
 
   const fetchClients = async () => {
     try {
@@ -63,8 +53,12 @@ const RentalAgreementPage = () => {
       const data: Client[] = await res.json();
 
       const allowed = await Promise.all(
-        data.map(async c => {
-          const res = await authFetch(`/clients/can_create/${c.id}`, {}, auth?.token);
+        data.map(async (c) => {
+          const res = await authFetch(
+            `/clients/can_create/${c.id}`,
+            {},
+            auth?.token
+          );
           return res.ok && (await res.json()) ? c : null;
         })
       );
@@ -79,20 +73,19 @@ const RentalAgreementPage = () => {
     try {
       const res = await authFetch("/tools", {}, auth?.token);
       if (!res.ok) throw new Error("Failed to fetch tools");
-  
+
       const data: Tool[] = await res.json();
-  
+
       const availableTools = data.filter(
         (tool) => tool.toolAvailabilityStatus === "AVAILABLE"
       );
-  
+
       setTools(availableTools);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load tools");
     }
   };
-  
 
   const fetchAgreements = async () => {
     try {
@@ -109,23 +102,54 @@ const RentalAgreementPage = () => {
     fetchAgreements();
   }, []);
 
-  /* ================= CREATE AGREEMENT ================= */
-
   const createAgreement = async () => {
     if (!selectedClientId || !selectedToolId || !estimatedTerminationDate) {
-      toast.error("Fill all required fields");
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    const executionDate = new Date();
+    const estimatedDate = new Date(estimatedTerminationDate);
+
+    executionDate.setHours(0, 0, 0, 0);
+    estimatedDate.setHours(0, 0, 0, 0);
+
+    if (estimatedDate <= executionDate) {
+      toast.error("Estimated termination date must be after today");
+      setEstimatedTerminationDate("");
+      return;
+    }
+
+    const diffDays =
+      (estimatedDate.getTime() - executionDate.getTime()) /
+      (1000 * 60 * 60 * 24);
+
+    if (diffDays > MAX_RENTAL_DAYS) {
+      toast.error(`Rental period cannot exceed ${MAX_RENTAL_DAYS} days`);
+      const maxDate = new Date(executionDate);
+      maxDate.setDate(maxDate.getDate() + MAX_RENTAL_DAYS);
+      setEstimatedTerminationDate(maxDate.toISOString().split("T")[0]);
       return;
     }
 
     setIsSubmitting(true);
+
     try {
+      const employeeId = auth?.id;
+      if (!employeeId) {
+        toast.error("Employee not identified");
+        return;
+      }
+
       const payload = {
-        clientId: selectedClientId,
-        toolId: selectedToolId,
-        employeeId: auth?.id,
+        clientId: Number(selectedClientId),
+        toolId: Number(selectedToolId),
+        employeeId: Number(employeeId),
         agreementEstimatedTerminationDate: estimatedTerminationDate,
         agreementComment: agreementComment.trim(),
       };
+
+      console.log("Creating rental agreement:", payload);
 
       const res = await authFetch(
         "/rental_agreements/create",
@@ -137,23 +161,29 @@ const RentalAgreementPage = () => {
         auth?.token
       );
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Backend error:", errText);
+        toast.error(errText || "Failed to create rental agreement");
+        return;
+      }
 
-      toast.success("Rental agreement created");
+      const agreementId = await res.json();
+      toast.success(`Rental Agreement #${agreementId} created`);
+
       setSelectedClientId(null);
       setSelectedToolId(null);
       setEstimatedTerminationDate("");
       setAgreementComment("");
-      fetchTools();
       fetchAgreements();
-    } catch {
-      toast.error("Failed to create agreement");
+      fetchTools();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create rental agreement");
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  /* ================= ACTIONS ================= */
 
   const initiateReturn = async (agreementId: number, clientId: number) => {
     setLoadingId(agreementId);
@@ -163,14 +193,14 @@ const RentalAgreementPage = () => {
         { method: "POST" },
         auth?.token
       );
-  
+
       if (!res.ok) {
         const errText = await res.text();
         console.error("Initiate return error:", errText);
         toast.error(errText || "Failed to initialize return");
         return;
       }
-  
+
       toast.success("Return initialized");
       fetchAgreements();
     } catch (err) {
@@ -180,7 +210,6 @@ const RentalAgreementPage = () => {
       setLoadingId(null);
     }
   };
-  
 
   const closeAgreement = async (agreementId: number) => {
     const employeeId = auth?.id;
@@ -188,15 +217,15 @@ const RentalAgreementPage = () => {
       toast.error("Employee not identified");
       return;
     }
-  
+
     setLoadingId(agreementId);
     try {
       const res = await authFetch(
-        `/rental_agreements/close/${agreementId}?employeeId=${employeeId}`,
+        `/rental_agreements/close/${agreementId}/${employeeId}`,
         { method: "POST" },
         auth?.token
       );
-  
+
       if (!res.ok) {
         const errText = await res.text();
         console.error("Close agreement error:", errText);
@@ -212,8 +241,6 @@ const RentalAgreementPage = () => {
       setLoadingId(null);
     }
   };
-  
-
 
   const reportDamagedTool = async (a: RentalAgreement) => {
     if (feeAmount <= 0) {
@@ -272,48 +299,53 @@ const RentalAgreementPage = () => {
     }
   };
 
-  /* ================= UI ================= */
+  const visibleAgreements = agreements.filter((a) => !a.hasPenalty);
 
-  const visibleAgreements = agreements.filter(
-    a =>
-      a.agreementActualTerminationDate !== null &&
-      !a.hasPenalty
-  );
-  
-  
-  const active = visibleAgreements.filter(a => !a.toBeReviewed);
-  const review = visibleAgreements.filter(a => a.toBeReviewed);
-  
+  const active = visibleAgreements.filter((a) => !a.toBeReviewed);
+
+  const review = visibleAgreements.filter((a) => a.toBeReviewed);
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-10">
-
-      {/* ===== CREATE AGREEMENT ===== */}
       <Card>
         <CardContent className="space-y-4">
           <h2 className="text-xl font-semibold">Create Rental Agreement</h2>
 
-          <select value={selectedClientId ?? ""} onChange={e => setSelectedClientId(Number(e.target.value))}>
+          <select
+            value={selectedClientId ?? ""}
+            onChange={(e) => setSelectedClientId(Number(e.target.value))}
+          >
             <option value="">Select client</option>
-            {clients.map(c => (
-              <option key={c.id} value={c.id}>{c.name} {c.surname}</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} {c.surname}
+              </option>
             ))}
           </select>
 
-          <select value={selectedToolId ?? ""} onChange={e => setSelectedToolId(Number(e.target.value))}>
+          <select
+            value={selectedToolId ?? ""}
+            onChange={(e) => setSelectedToolId(Number(e.target.value))}
+          >
             <option value="">Select tool</option>
-            {tools.map(t => (
-              <option key={t.id} value={t.id}>{t.toolName}</option>
+            {tools.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.toolName}
+              </option>
             ))}
           </select>
-
-          <Input type="date" value={estimatedTerminationDate} onChange={e => setEstimatedTerminationDate(e.target.value)} />
+          <div className="text-xs">Maximum duration: 1 month</div>
+          <Input
+            type="date"
+            value={estimatedTerminationDate}
+            onChange={(e) => setEstimatedTerminationDate(e.target.value)}
+          />
 
           <Textarea
             placeholder="Comment *"
             required
             value={agreementComment}
-            onChange={e => setAgreementComment(e.target.value)}
+            onChange={(e) => setAgreementComment(e.target.value)}
           />
 
           <Button onClick={createAgreement} disabled={isSubmitting}>
@@ -322,31 +354,47 @@ const RentalAgreementPage = () => {
         </CardContent>
       </Card>
 
-      {/* ===== ACTIVE ===== */}
       <Card>
         <CardContent>
           <h2 className="text-xl font-semibold mb-4">Active Agreements</h2>
-          {active.map(a => (
+          {active.map((a) => (
             <div key={a.id} className="flex justify-between mb-2">
-              <span>{a.client.name} – {a.tool.toolName}</span>
-              <Button onClick={() => initiateReturn(a.id, a.client.id)}>Initialize return</Button>
+              <span>
+                {a.client.name} – {a.tool.toolName}
+              </span>
+              <Button onClick={() => initiateReturn(a.id, a.client.id)}>
+                Initialize return
+              </Button>
             </div>
           ))}
         </CardContent>
       </Card>
 
-      {/* ===== TO REVIEW ===== */}
       {isManager && (
         <Card>
           <CardContent>
             <h2 className="text-xl font-semibold mb-4">To Review</h2>
-            {review.map(a => (
+            {review.map((a) => (
               <div key={a.id} className="space-y-2 mb-4">
-                <p>{a.client.name} – {a.tool.toolName} - {a.id}</p>
+                <p>
+                  {a.client.name} – {a.tool.toolName} - {a.id}
+                </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => closeAgreement(a.id)}>Close</Button>
-                  <Input type="number" placeholder="Fee" onChange={e => setFeeAmount(+e.target.value)} />
-                  <Button variant="destructive" onClick={() => reportDamagedTool(a)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => closeAgreement(a.id)}
+                  >
+                    Close
+                  </Button>
+                  <Input
+                    type="number"
+                    placeholder="Fee"
+                    onChange={(e) => setFeeAmount(+e.target.value)}
+                  />
+                  <Button
+                    variant="destructive"
+                    onClick={() => reportDamagedTool(a)}
+                  >
                     Report damaged
                   </Button>
                 </div>

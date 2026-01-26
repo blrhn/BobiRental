@@ -1,4 +1,3 @@
-// src/pages/Warehouse.tsx
 import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,16 +18,13 @@ const Warehouse = () => {
   const { auth } = useAuth();
   const isManager = auth?.role === "WAREHOUSE_MANAGER";
 
-  // All tools fetched from backend
   const [tools, setTools] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filtering states - use string for search, but proper types for others
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("ALL");
   const [filterStatus, setFilterStatus] = useState("ALL");
 
-  // Editing tool
   const [editingToolId, setEditingToolId] = useState<number | null>(null);
   const [editToolData, setEditToolData] = useState({
     toolName: "",
@@ -38,7 +34,6 @@ const Warehouse = () => {
     availabilityStatus: "AVAILABLE",
   });
 
-  // New tool (manager only)
   const [newTool, setNewTool] = useState({
     toolName: "",
     toolDescription: "",
@@ -48,7 +43,6 @@ const Warehouse = () => {
   });
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // --- Fetch all tools once ---
   const fetchAllTools = async () => {
     setIsLoading(true);
     try {
@@ -68,23 +62,19 @@ const Warehouse = () => {
     fetchAllTools();
   }, []);
 
-  // --- Filtered tools using useMemo for performance ---
   const filteredTools = useMemo(() => {
     if (!tools.length) return [];
 
     return tools.filter((tool) => {
-      // Search by ID OR Name
       const matchesSearch =
         searchTerm === "" ||
         tool.id.toString().includes(searchTerm) ||
         tool.toolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tool.toolDescription?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Filter by category
       const matchesCategory =
         filterCategory === "ALL" || tool.toolCategory === filterCategory;
 
-      // Filter by status
       const matchesStatus =
         filterStatus === "ALL" || tool.toolAvailabilityStatus === filterStatus;
 
@@ -92,71 +82,70 @@ const Warehouse = () => {
     });
   }, [tools, searchTerm, filterCategory, filterStatus]);
 
-  // Reset filters
   const handleResetFilters = () => {
     setSearchTerm("");
     setFilterCategory("ALL");
     setFilterStatus("ALL");
   };
 
-  // --- Manager actions ---
   const createTool = async () => {
-  if (!newTool.toolName?.trim()) {
-    toast.error("Tool name is required");
-    return;
-  }
-
-  if (Number(newTool.toolPrice) <= 0) {
-    toast.error("Price must be greater than 0");
-    return;
-  }
-
-  const payload = {
-    toolName: newTool.toolName.trim(),
-    availabilityStatus: ["AVAILABLE", "UNAVAILABLE"].includes(newTool.availabilityStatus)
-      ? newTool.availabilityStatus
-      : "AVAILABLE",
-    toolDescription: newTool.toolDescription?.trim() || "",
-    toolCategory: ["DRILL", "CUTTER", "SAW"].includes(newTool.toolCategory)
-      ? newTool.toolCategory
-      : "DRILL",
-    toolPrice: Number(newTool.toolPrice),
-  };
-
-  console.log("Creating tool payload:", payload); // debug payload
-
-  try {
-    const res = await authFetch("/tools", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }, auth?.token);
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Backend error:", errText);
-      throw new Error("Failed to create tool");
+    if (!newTool.toolName?.trim()) {
+      toast.error("Tool name is required");
+      return;
     }
 
-    toast.success("Tool created successfully");
-    fetchAllTools(); // refresh list
+    if (Number(newTool.toolPrice) <= 0) {
+      toast.error("Price must be greater than 0");
+      return;
+    }
 
-    // Reset form
-    setNewTool({
-      toolName: "",
-      toolDescription: "",
-      toolCategory: "DRILL",
-      toolPrice: 0,
-      availabilityStatus: "AVAILABLE",
-    });
-    setShowAddForm(false);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to create tool. Check console for details.");
-  }
-};
+    const payload = {
+      toolName: newTool.toolName.trim(),
+      availabilityStatus: ["AVAILABLE", "UNAVAILABLE"].includes(
+        newTool.availabilityStatus
+      )
+        ? newTool.availabilityStatus
+        : "AVAILABLE",
+      toolDescription: newTool.toolDescription?.trim() || "",
+      toolCategory: ["DRILL", "CUTTER", "SAW"].includes(newTool.toolCategory)
+        ? newTool.toolCategory
+        : "DRILL",
+      toolPrice: Number(newTool.toolPrice),
+    };
 
-  
+    try {
+      const res = await authFetch(
+        "/tools",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+        auth?.token
+      );
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Backend error:", errText);
+        throw new Error("Failed to create tool");
+      }
+
+      toast.success("Tool created successfully");
+      fetchAllTools();
+
+      setNewTool({
+        toolName: "",
+        toolDescription: "",
+        toolCategory: "DRILL",
+        toolPrice: 0,
+        availabilityStatus: "AVAILABLE",
+      });
+      setShowAddForm(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create tool. Check console for details.");
+    }
+  };
 
   const saveTool = async (id: number) => {
     if (!editToolData.toolName.trim()) {
@@ -190,26 +179,7 @@ const Warehouse = () => {
     }
   };
 
-  const deleteTool = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this tool?")) return;
-
-    try {
-      const res = await authFetch(
-        `/tools/${id}`,
-        { method: "DELETE" },
-        auth?.token
-      );
-      if (!res.ok) throw new Error();
-      toast.success("Tool deleted successfully");
-      fetchAllTools();
-    } catch {
-      toast.error("Failed to delete tool");
-    }
-  };
-
-  // Toggle availability
   const toggleAvailability = async (tool: any) => {
-    // Only allow toggle if tool is AVAILABLE or UNAVAILABLE
     if (tool.toolAvailabilityStatus === "RENTED") {
       toast.error("Cannot change status of a rented tool");
       return;
@@ -238,7 +208,6 @@ const Warehouse = () => {
     }
   };
 
-  // Categories for dropdowns
   const categories = ["DRILL", "CUTTER", "SAW"];
   const statuses = ["AVAILABLE", "UNAVAILABLE", "RENTED"];
 
@@ -254,7 +223,6 @@ const Warehouse = () => {
         )}
       </div>
 
-      {/* Filters Section */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-4">
@@ -263,7 +231,6 @@ const Warehouse = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search Input */}
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
@@ -274,7 +241,6 @@ const Warehouse = () => {
               />
             </div>
 
-            {/* Category Filter */}
             <Select value={filterCategory} onValueChange={setFilterCategory}>
               <SelectTrigger>
                 <SelectValue placeholder="Category" />
@@ -289,7 +255,6 @@ const Warehouse = () => {
               </SelectContent>
             </Select>
 
-            {/* Status Filter */}
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="Status" />
@@ -304,7 +269,6 @@ const Warehouse = () => {
               </SelectContent>
             </Select>
 
-            {/* Reset Button */}
             <Button
               variant="outline"
               onClick={handleResetFilters}
@@ -318,7 +282,6 @@ const Warehouse = () => {
             </Button>
           </div>
 
-          {/* Results Summary */}
           <div className="mt-4 text-sm text-gray-600">
             Showing {filteredTools.length} of {tools.length} tools
             {searchTerm && ` matching "${searchTerm}"`}
@@ -328,7 +291,6 @@ const Warehouse = () => {
         </CardContent>
       </Card>
 
-      {/* Manager: Add Tool Form */}
       {isManager && showAddForm && (
         <Card>
           <CardContent className="pt-6">
@@ -444,7 +406,6 @@ const Warehouse = () => {
         </Card>
       )}
 
-      {/* Tool List */}
       <Card>
         <CardContent className="pt-6">
           {isLoading ? (
@@ -471,7 +432,6 @@ const Warehouse = () => {
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       {isEditing ? (
-                        // Edit Mode
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                           <div className="space-y-2">
                             <Input
@@ -565,7 +525,6 @@ const Warehouse = () => {
                           </div>
                         </div>
                       ) : (
-                        // View Mode
                         <>
                           <div className="flex-1">
                             <div className="flex items-start gap-3">
@@ -650,7 +609,7 @@ const Warehouse = () => {
                                 onClick={() => toggleAvailability(tool)}
                                 disabled={
                                   tool.toolAvailabilityStatus === "RENTED"
-                                } // cannot toggle rented tools
+                                }
                               >
                                 {tool.toolAvailabilityStatus === "AVAILABLE"
                                   ? "Set as Unavailable"

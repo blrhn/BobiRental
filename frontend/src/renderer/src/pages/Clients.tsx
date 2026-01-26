@@ -17,6 +17,7 @@ interface Fee {
       id: number;
     };
   };
+  isFeePaid: boolean;
 }
 
 interface Client {
@@ -63,19 +64,28 @@ const Clients = () => {
               debtRes,
               canCreateRes,
               unpaidFeesRes,
+              overdueFeesRes,
             ] = await Promise.all([
               authFetch(`/clients/fees/${client.id}`, {}, auth?.token),
               authFetch(`/clients/debt/${client.id}`, {}, auth?.token),
               authFetch(`/clients/can_create/${client.id}`, {}, auth?.token),
               authFetch(`/fees/unpaid/${client.id}`, {}, auth?.token),
+              authFetch(`/fees/overdue/${client.id}`, {}, auth?.token),
             ]);
+
+            const unpaidFees = unpaidFeesRes.ok
+              ? await unpaidFeesRes.json()
+              : [];
+            const overdueFees = overdueFeesRes.ok
+              ? await overdueFeesRes.json()
+              : [];
 
             return {
               ...client,
               fees: feesRes.ok ? await feesRes.json() : 0,
               debt: debtRes.ok ? await debtRes.json() : 0,
               canCreate: canCreateRes.ok ? await canCreateRes.json() : false,
-              unpaidFees: unpaidFeesRes.ok ? await unpaidFeesRes.json() : [],
+              unpaidFees: [...unpaidFees, ...overdueFees],
             };
           } catch {
             return {
@@ -110,18 +120,32 @@ const Clients = () => {
     );
   }, [clients, searchTerm]);
 
-  const setFeePaid = async (feeId: number) => {
+  // Funkcja do oznaczenia opłaty jako zapłaconej
+  const setFeePaid = async (fee: Fee) => {
     try {
       const res = await authFetch(
-        `/fees/${feeId}`,
-        { method: "DELETE" },
+        `/fees/${fee.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            feeCategory: fee.feeCategory,
+            rentalAgreementId: fee.agreement?.tool?.id ?? 0, // dostosuj jeśli potrzebne
+            clientId: fee.agreement?.tool?.id ?? 0, // albo użyj odpowiedniego clientId
+            employeeId: auth?.id ?? 0,
+            actualFee: fee.actualFee,
+            feeDutyDate: new Date().toISOString().split("T")[0],
+            feeFinalizedDate: new Date().toISOString().split("T")[0],
+            isFeePaid: true,
+          }),
+        },
         auth?.token
       );
 
-      if (!res.ok) throw new Error("Failed to set fee paid");
+      if (!res.ok) throw new Error("Failed to mark fee as paid");
 
       toast.success("Fee marked as paid");
-      fetchClients();
+      fetchClients(); // odśwież listę
     } catch (err) {
       console.error(err);
       toast.error("Failed to set fee as paid");
@@ -129,8 +153,13 @@ const Clients = () => {
   };
 
   const createClient = async () => {
-    if (!newClient.name.trim() || !newClient.surname.trim()) {
-      toast.error("Name and surname are required");
+    if (
+      !newClient.name.trim() ||
+      !newClient.surname.trim() ||
+      !newClient.clientAddress.trim() ||
+      !newClient.clientMail.trim()
+    ) {
+      toast.error("FIll all required fields");
       return;
     }
 
@@ -148,7 +177,12 @@ const Clients = () => {
       if (!res.ok) throw new Error("Failed to create client");
 
       toast.success("Client created successfully");
-      setNewClient({ name: "", surname: "", clientAddress: "", clientMail: "" });
+      setNewClient({
+        name: "",
+        surname: "",
+        clientAddress: "",
+        clientMail: "",
+      });
       setShowAddForm(false);
       fetchClients();
     } catch {
@@ -179,61 +213,60 @@ const Clients = () => {
           </div>
         </CardContent>
       </Card>
-        {/* Add client form */}
-{showAddForm && (
-  <Card>
-    <CardContent className="pt-6">
-      <h2 className="text-lg font-semibold mb-4">Add New Client</h2>
+      {showAddForm && (
+        <Card>
+          <CardContent className="pt-6">
+            <h2 className="text-lg font-semibold mb-4">Add New Client</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          placeholder="Name *"
-          value={newClient.name}
-          onChange={(e) =>
-            setNewClient({ ...newClient, name: e.target.value })
-          }
-        />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                placeholder="Name *"
+                value={newClient.name}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, name: e.target.value })
+                }
+              />
 
-        <Input
-          placeholder="Surname *"
-          value={newClient.surname}
-          onChange={(e) =>
-            setNewClient({ ...newClient, surname: e.target.value })
-          }
-        />
+              <Input
+                placeholder="Surname *"
+                value={newClient.surname}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, surname: e.target.value })
+                }
+              />
 
-        <Input
-          placeholder="Address"
-          value={newClient.clientAddress}
-          onChange={(e) =>
-            setNewClient({ ...newClient, clientAddress: e.target.value })
-          }
-        />
+              <Input
+                placeholder="Address *"
+                value={newClient.clientAddress}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, clientAddress: e.target.value })
+                }
+              />
 
-        <Input
-          placeholder="Email"
-          value={newClient.clientMail}
-          onChange={(e) =>
-            setNewClient({ ...newClient, clientMail: e.target.value })
-          }
-        />
-      </div>
+              <Input
+                placeholder="Email *"
+                value={newClient.clientMail}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, clientMail: e.target.value })
+                }
+              />
+            </div>
 
-      <div className="flex gap-2 pt-4">
-        <Button onClick={createClient} className="flex-1">
-          Create Client
-        </Button>
-        <Button
-          variant="outline"
-          className="flex-1"
-          onClick={() => setShowAddForm(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-)}
+            <div className="flex gap-2 pt-4">
+              <Button onClick={createClient} className="flex-1">
+                Create Client
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowAddForm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="pt-6">
@@ -255,16 +288,17 @@ const Clients = () => {
 
                     <div className="flex gap-2 mt-2 text-sm">
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                        Fees: ${c.fees?.toFixed(2)}
-                      </span>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded">
-                        Can Create: {c.canCreate ? "Yes" : "No"}
+                        Fees: $
+                        {(
+                          c.unpaidFees
+                            ?.filter((f) => !f.isFeePaid) // tylko nieopłacone
+                            .reduce((sum, f) => sum + f.actualFee, 0) ?? 0
+                        ).toFixed(2)}
                       </span>
                     </div>
                   </div>
 
-                  {/* Unpaid Fees */}
-                  {c.unpaidFees && c.unpaidFees.length > 0 && (
+                  {c.unpaidFees && c.unpaidFees.some((f) => !f.isFeePaid) && (
                     <div className="border-t pt-4 space-y-2">
                       <h3 className="font-semibold text-sm">Unpaid Fees</h3>
 
@@ -290,7 +324,7 @@ const Clients = () => {
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => setFeePaid(fee.id)}
+                            onClick={() => setFeePaid(fee)}
                           >
                             Set fee paid
                           </Button>
