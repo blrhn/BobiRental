@@ -118,4 +118,8 @@ public class Fee extends BaseEntity {
     public LocalDate getFeeFinalizedDate() {
         return this.feeFinalizedDate;
     }
+
+    public void setFeePaid(boolean isFeePaid) {
+        this.isFeePaid = isFeePaid;
+    }
 }

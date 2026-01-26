@@ -72,6 +72,7 @@ public class FeeService extends BaseService<Fee> {
         existingFee.setFeeCategory(feeRequest.feeCategory());
         existingFee.setFeeDutyDate(feeRequest.feeDutyDate());
         existingFee.setFeeFinalizedDate(feeRequest.feeFinalizedDate());
+        existingFee.setIsFeePaid(feeRequest.isFeePaid());
 
         if (existingFee.getFeeFinalizedDate() != null) {
             existingFee.setIsFeePaid(true);

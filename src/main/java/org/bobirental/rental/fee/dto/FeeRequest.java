@@ -25,5 +25,7 @@ public record FeeRequest(
         @NotNull
         LocalDate feeDutyDate,
 
-        LocalDate feeFinalizedDate
+        LocalDate feeFinalizedDate,
+
+        boolean isFeePaid
 ) { }
