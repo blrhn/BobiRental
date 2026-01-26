@@ -30,8 +30,8 @@ public class RentalAgreementController extends BaseController<RentalAgreement> {
 
     @Operation(summary = "Close rental agreement by id")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER')")
-    @PostMapping("/close/{id}")
-    public ResponseEntity<Void> closeAgreement(@PathVariable Integer id, @RequestParam Integer employeeId) {
+    @PostMapping("/close/{id}/{employeeId}")
+    public ResponseEntity<Void> closeAgreement(@PathVariable Integer id, @PathVariable Integer employeeId) {
         rentalAgreementService.closeAgreement(id, employeeId);
 
         return ResponseEntity.ok().build();
