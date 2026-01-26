@@ -3,7 +3,6 @@ package org.bobirental.rental.agreement;
 import org.bobirental.common.impl.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -30,9 +29,6 @@ public interface RentalAgreementRepository extends BaseRepository<RentalAgreemen
 
     @Modifying(clearAutomatically = true)
     @Query(value = "CALL close_agreement(:agreementId, :employeeId)", nativeQuery = true)
-    /*@Modifying // Tells Hibernate: "Expect an update count, not a result set"
-    @Query(value = "CALL close_agreement(:agreementId, :employeeId)", nativeQuery = true)*/
-    //@Procedure(procedureName = "close_agreement")
     void closeAgreement(@Param("agreementId") Integer agreementId, @Param("employeeId") Integer employeeId);
 
     @Query(value = "SELECT r FROM RentalAgreement r WHERE r.client.id = :clientId")

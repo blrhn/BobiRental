@@ -50,7 +50,6 @@ public class EmployeeController extends BaseController<Employee> {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Authenticate user
             Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.employeeLogin(),
@@ -58,18 +57,16 @@ public class EmployeeController extends BaseController<Employee> {
                 )
             );
 
-            // Fetch employee from DB
             Employee employee = employeeService.findByLogin(loginRequest.employeeLogin());
 
             if (employee == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
 
-            // Return only safe info
             LoginResponse response = new LoginResponse(
                 employee.getId(),
                 employee.getEmployeeLogin(),
-                employee.getEmployeeRole().name() // important: use getEmployeeRole()
+                employee.getEmployeeRole().name()
             );
 
             return ResponseEntity.ok(response);

@@ -37,10 +37,10 @@ INSERT INTO employee (employee_name, employee_surname, employee_role, employee_l
 INSERT INTO client (client_name, client_surname, client_address, client_mail, client_has_duty, client_removal_date) VALUES
     ('Marek', 'Kowalczyk', 'ul. Długa 15, 00-001 Warszawa', 'marek.kowal@email.pl', FALSE, CURRENT_DATE + INTERVAL '1 year'),
     ('Zofia', 'Szymańska', 'ul. Krótka 8/12, 30-002 Kraków', 'zofia.szy@gmail.com', FALSE, CURRENT_DATE + INTERVAL '1 year'),
-    ('Andrzej', 'Woźniak', 'ul. Polna 44, 80-003 Gdańsk', 'a.wozniak@firma.pl', FALSE, CURRENT_DATE + INTERVAL '6 months'),
+    ('Andrzej', 'Woźniak', 'ul. Polna 44, 80-003 Gdańsk', 'a.wozniak@firma.pl', TRUE, CURRENT_DATE + INTERVAL '6 months'),
     ('Katarzyna', 'Kamińska', 'os. Słoneczne 7, 50-004 Wrocław', 'kasia.kam@interia.pl', FALSE, CURRENT_DATE + INTERVAL '1 year'),
     ('Michał', 'Zieliński', 'ul. Jasna 23, 60-005 Poznań', 'michal.z@outlook.com', FALSE, CURRENT_DATE + INTERVAL '1 year'),
-    ('Ewa', 'Mazur', 'ul. Ciemna 9/3, 90-006 Łódź', 'ewa.mazur@wp.pl', FALSE, CURRENT_DATE + INTERVAL '3 months'),
+    ('Ewa', 'Mazur', 'ul. Ciemna 9/3, 90-006 Łódź', 'ewa.mazur@wp.pl', TRUE, CURRENT_DATE + INTERVAL '3 months'),
     ('Paweł', 'Król', 'ul. Stara 56, 20-007 Lublin', 'pawel.krol@yahoo.com', FALSE, CURRENT_DATE + INTERVAL '1 year'),
     ('Agnieszka', 'Wojciechowska', 'ul. Nowa 31, 40-008 Katowice', 'agnes.w@gmail.com', FALSE, CURRENT_DATE + INTERVAL '1 year');
 
@@ -108,17 +108,17 @@ INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee,
     ('RENTAL_FEE', 8, 2, 5, 182.00, FALSE, CURRENT_DATE + INTERVAL '14 days', NULL);
 
 -- Opłaty karne (przeterminowane - dla klientów z zaległościami)
-    -- INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
-    -- ('PENALTY', 2, 2, 3, 50.00, FALSE, CURRENT_DATE - INTERVAL '20 days', NULL);
+    INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
+    ('PENALTY', 2, 2, 3, 50.00, FALSE, CURRENT_DATE - INTERVAL '20 days', NULL);
 
 -- Dodatkowe zaległe opłaty dla klienta ID 3 (Andrzej Woźniak - ma client_has_duty = TRUE)
 INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
-    -- ('RENTAL_FEE', 3, 3, 2, 150.00, FALSE, CURRENT_DATE - INTERVAL '15 days', NULL),
-    ('PENALTY', 3, 3, 2, 75.00, FALSE, CURRENT_DATE + INTERVAL '15 days', NULL);
+    ('RENTAL_FEE', 3, 3, 2, 150.00, FALSE, CURRENT_DATE - INTERVAL '15 days', NULL),
+    ('PENALTY', 3, 3, 2, 75.00, FALSE, CURRENT_DATE - INTERVAL '15 days', NULL);
 
 -- Dodatkowe zaległe opłaty dla klienta ID 6 (Ewa Mazur - ma client_has_duty = TRUE)
--- INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
---     ('RENTAL_FEE', 3, 6, 5, 200.00, FALSE, CURRENT_DATE - INTERVAL '20 days', NULL);
+INSERT INTO fee (fee_category, agreement_id, client_id, employee_id, actual_fee, is_fee_paid, fee_duty_date, fee_finalized_date) VALUES
+    ('RENTAL_FEE', 3, 6, 5, 200.00, FALSE, CURRENT_DATE - INTERVAL '20 days', NULL);
 
 UPDATE tool
 SET tool_availability_status = 'AVAILABLE'
